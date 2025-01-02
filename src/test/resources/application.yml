@@ -1,0 +1,28 @@
+spring:
+    profiles:
+        active: test, default
+    security:
+        authorities-claim: ${AUTHORITIES_CLAIM:spring_security_roles}
+        role-prefix: ${ROLE_PREFIX:ROLE}
+        oauth2:
+            client:
+                provider:
+                    keycloak: 
+                        issuer-uri: ${ISSUER_URI:http://localhost:8080/realms/taskmanagementrealm}
+                        user-name-attribute: ${USER_NAME_CLAIM:preferred_username}
+                registration:
+                    keycloak:
+                        client-id: ${CLIENT_ID:task-management-system-security}
+                        client-secret: ${CLIENT_SECRET:9XemsFJoRtHzA3jwrk0mPDU9OjxxrFwf}
+                        scope:
+                            - openid
+            resourceserver:
+                jwt:
+                    issuer-uri: ${ISSUER_URI:http://localhost:8080/realms/taskmanagementrealm}
+                    jwk-set-uri: ${JWK_SET_URI:http://localhost:8080/realms/taskmanagementrealm/protocol/openid-connect/certs}
+server:
+    port: ${SERVER_PORT:18080}
+    advertised-adress: ${ADVERTISED_ADRESS:localhost:18080}
+logging:
+    level: 
+        org.springframework.security: TRACE
