@@ -15,6 +15,14 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @ControllerAdvice
 public class SystemControllerAdvice {
 	
+	/*@ExceptionHandler(RuntimeException.class)
+	public ResponseEntity<String> handle(RuntimeException e) {
+		System.out.println(e.getMessage());
+		System.out.println(e.getClass().getName());
+		e.getStackTrace();
+		return ResponseEntity.status(400).body(e.getMessage());
+	}*/
+	
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException e) {
 		return ResponseEntity.status(403).body(e.getMessage());

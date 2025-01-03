@@ -3,6 +3,8 @@ package com.mtrifonov.task.management.system.app.unit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,11 +33,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Stream;
 
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.text.MatchesPattern.*;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 @Slf4j
 @WebMvcTest(controllers = SystemController.class)
@@ -44,6 +55,7 @@ import org.junit.jupiter.api.Test;
 		TaskCommentModelAssembler.class, SystemControllerAdvice.class, 
 		StubTaskRepository.class, StubTaskCommentRepository.class
 		})
+//@TestMethodOrder(MethodOrderer.MethodName.class)
 public class SystemControllerTest {
 	
 	@Autowired
@@ -205,7 +217,7 @@ public class SystemControllerTest {
 	
 	@Test
 	@WithCustomUser(username = "m.circle", email = "m.circle@example.com")
-	void getAllComments_validRequestNotAuthorOrExecutorgWithAdminRole_statusOk() throws Exception {
+	void getAllComments_validRequestNotAuthorOrExecutorPerformingWithAdminRole_statusOk() throws Exception {
 		
 		var params = Map.of(
 				"sortParams", List.of("id,asc"), 
@@ -222,7 +234,7 @@ public class SystemControllerTest {
 	
 	@Test
 	@WithCustomUser(username = "m.circle", email = "m.circle@example.com", role = "ROLE_USER")
-	void getAllComments_validRequestNotAuthorOrExecutorgWithUserRole_statusForbidden() throws Exception {
+	void getAllComments_validRequestNotAuthorOrExecutorPerformingWithUserRole_statusForbidden() throws Exception {
 		
 		var params = Map.of(
 				"sortParams", List.of("id,asc"), 
@@ -235,6 +247,81 @@ public class SystemControllerTest {
 		
 		
 		mvc.perform(requestBuilder).andExpect(status().isForbidden());
+	}
+	
+	@Test
+	@WithCustomUser(username = "s.spiegel", email = "s.spiegel@example.com", role = "ROLE_USER")
+	void addComment_validRequestAuthorPerformingWithUserRole_statusCreated() throws Exception {
+		
+		
+		var requestBuilder = MockMvcRequestBuilders
+				.post("/task/management/system/1/comment")
+				.content("New comment")
+				.contentType(MediaType.TEXT_PLAIN)
+				.with(csrf());
+		
+		mvc.perform(requestBuilder).andExpect(status().isCreated());
+	}
+	
+	@Test
+	@WithCustomUser(username = "b.baggins", email = "b.baggins@example.com", role = "ROLE_USER")
+	void addComment_validRequestExecutorPerformingWithUserRole_statusCreated() throws Exception {
+		
+		
+		var requestBuilder = MockMvcRequestBuilders
+				.post("/task/management/system/1/comment")
+				.content("New comment")
+				.contentType(MediaType.TEXT_PLAIN)
+				.with(csrf());
+		
+		mvc.perform(requestBuilder).andExpect(status().isCreated());
+	}
+	
+	@Test
+	@WithCustomUser(username = "m.circle", email = "m.circle@example.com")
+	void addComment_validRequestNotAuthorOrExecutorPerformingWithAdminRole_statusCreated() throws Exception {
+		
+		
+		var requestBuilder = MockMvcRequestBuilders
+				.post("/task/management/system/1/comment")
+				.content("New comment")
+				.contentType(MediaType.TEXT_PLAIN)
+				.with(csrf());
+		
+		mvc.perform(requestBuilder).andExpect(status().isCreated());
+	}
+	
+	@Test
+	@WithCustomUser(username = "m.circle", email = "m.circle@example.com", role = "ROLE_USER")
+	void addComment_validRequestNotAuthorOrExecutorPerformingWithUserRole_statusForbidden() throws Exception {
+		
+		
+		var requestBuilder = MockMvcRequestBuilders
+				.post("/task/management/system/1/comment")
+				.content("New comment")
+				.contentType(MediaType.TEXT_PLAIN)
+				.with(csrf());
+		
+		mvc.perform(requestBuilder).andExpect(status().isForbidden());
+	}
+	
+	
+	@Test
+	@WithCustomUser(username = "s.spiegel", email = "s.spiegel@example.com", role = "ROLE_USER")
+	void addComment_invalidRequestAuthorPerformingWithUserRole_statusBadRequest() throws Exception {
+		
+		
+		var requestBuilder = MockMvcRequestBuilders
+				.post("/task/management/system/1/comment")
+				.contentType(MediaType.TEXT_PLAIN)
+				.with(csrf());
+		
+		
+		mvc.perform(requestBuilder)
+			.andExpectAll(
+					status().isBadRequest(), 
+					content().string(containsString("Error deserializing request body: "))
+					);
 	}
 	
 	@Test

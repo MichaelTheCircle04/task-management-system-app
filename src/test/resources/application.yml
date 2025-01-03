@@ -25,4 +25,4 @@ server:
     advertised-adress: ${ADVERTISED_ADRESS:localhost:18080}
 logging:
     level: 
-        org.springframework.security: TRACE
+        org.springframework.security: ERROR

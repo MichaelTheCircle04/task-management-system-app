@@ -64,8 +64,8 @@ public class SystemController {
 	
 	//Return all tasks where the author is the user with a given EMAIL
 	@GetMapping("/author/{email}")
-	public ResponseEntity<PagedModel<EntityModel<TaskDTO>>> getAllTasksByAuthor(@PathVariable @Email String email, 
-			@RequestParam(defaultValue = "unsorted") String[] sortParams,
+	public ResponseEntity<PagedModel<EntityModel<TaskDTO>>> getAllTasksByAuthor(@PathVariable @Email String email, @PageableDefault
+			@RequestParam(defaultValue = "") String[] sortParams,
 		    @RequestParam(defaultValue = "0") int pageNum,
 			@RequestParam(defaultValue = "10") int pageSize) {
 		
@@ -77,7 +77,7 @@ public class SystemController {
 	//Return all tasks where the executor is the user with a given EMAIL
 	@GetMapping("/executor/{email}")
 	public ResponseEntity<PagedModel<EntityModel<TaskDTO>>> getAllTasksByExecutor(@PathVariable @Email String email,
-			@RequestParam(defaultValue = "unsorted") String[] sortParams,
+			@RequestParam(defaultValue = "") String[] sortParams,
 			@RequestParam(defaultValue = "0") int pageNum,
 			@RequestParam(defaultValue = "10") int pageSize) {
 		
@@ -90,7 +90,7 @@ public class SystemController {
 	//Return all comments related to task with given ID
 	@GetMapping("/{id}/comments")
 	public ResponseEntity<PagedModel<EntityModel<TaskCommentDTO>>> getAllComments(@PathVariable long id, Authentication user,
-			@RequestParam(defaultValue = "unsorted") String[] sortParams,
+			@RequestParam(defaultValue = "") String[] sortParams,
 			@RequestParam(defaultValue = "0") int pageNum,
 			@RequestParam(defaultValue = "10") int pageSize) {
 		
@@ -104,7 +104,7 @@ public class SystemController {
 	@GetMapping("/{id}/comments/{email}")
 	public ResponseEntity<PagedModel<TaskCommentDTO>> getAllCommentsByAuthor(@PathVariable long id, 
 			@PathVariable @Email String email, Authentication user,
-			@RequestParam(defaultValue = "unsorted") String[] sortParams,
+			@RequestParam(defaultValue = "") String[] sortParams,
 			@RequestParam(defaultValue = "0") int pageNum,
 			@RequestParam(defaultValue = "10") int pageSize) {
 		
@@ -121,9 +121,7 @@ public class SystemController {
 						comments.getNumber(),
 						comments.getTotalElements())
 				);
-		
-		//var model = PagedModel.wrap(comments, null);
-		
+				
 		model.add(Link.of("Task " + id + ": ", "http://" + adress + "/task/management/system/" + id));
 		return ResponseEntity.ok(model);
 	}
@@ -175,10 +173,10 @@ public class SystemController {
 	
 	//Add a comment with a given TEXT to a task with a given ID
 	@PostMapping("/{id}/comment")
-	public ResponseEntity<Void> addComment(long id, @RequestBody String text, 
-			Authentication user) {
+	public ResponseEntity<Void> addComment(@PathVariable long id,
+			@RequestBody String text, Authentication user) {
 		
-		taskService.addComment(id, text, user);
-		return ResponseEntity.ok().build();
+		var comment = taskService.addComment(id, text, user);
+		return ResponseEntity.created(URI.create("http://" + adress + "/task/management/system/" + id + "/comment" + comment.getId())).build();
 	}
 }

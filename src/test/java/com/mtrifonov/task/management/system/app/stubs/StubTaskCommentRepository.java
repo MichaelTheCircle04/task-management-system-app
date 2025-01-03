@@ -146,9 +146,10 @@ public class StubTaskCommentRepository implements TaskCommentRepository {
 	}
 
 	@Override
-	public <S extends TaskComment> S save(S entity) {
-		// TODO Auto-generated method stub
-		return null;
+	public synchronized <S extends TaskComment> S save(S entity) {
+		entity.setId(this.seq.getAndIncrement());
+		this.comments.add(entity);
+		return entity;
 	}
 
 	@Override

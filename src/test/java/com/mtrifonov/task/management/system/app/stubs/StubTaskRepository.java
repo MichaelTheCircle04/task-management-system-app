@@ -255,21 +255,17 @@ public class StubTaskRepository implements TaskRepository {
 		
 		List<Task> data;
 		var orders = pageable.getSort().get().toList();
-		System.out.println("1");
+		
 		if (orders.isEmpty()) {
 			data = tasks.stream().filter(t -> t.getAuthor().equals(email)).toList();
 		} else {
 			data = tasks.stream().filter(t -> t.getAuthor().equals(email))
 					.sorted((Comparator<Task>) getComparator(orders, Task.class)).toList();
 		}
-		System.out.println("2");
+		
 		long start = pageable.getOffset();
 		long end = Math.min((start + pageable.getPageSize()), data.size());
-		System.out.println("3");
-		System.out.println(start);
-		System.out.println(end);
 		var page = data.subList((int) start, (int) end);
-		System.out.println("4");
 		return new PageImpl<>(page, pageable, data.size());
 	}
 

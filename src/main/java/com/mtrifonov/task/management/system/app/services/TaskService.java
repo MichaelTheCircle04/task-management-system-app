@@ -120,7 +120,7 @@ public class TaskService {
 	}
 	
 	@Transactional
-	public void addComment(long id, String text, Authentication user) {
+	public TaskComment addComment(long id, String text, Authentication user) {
 		
 		var task = this.getTaskById(id);		
 		this.checkAccess("ROLE_ADMIN", task, user, "You do not have enough rights to add comments to task");		
@@ -131,7 +131,7 @@ public class TaskService {
 				.author(principal.getClaimAsString("email"))
 				.build();
 		
-		taskCommentRepository.save(taskComment);
+		return taskCommentRepository.save(taskComment);
 	}
 	
 	private Task getTaskById(long id) {
@@ -156,7 +156,7 @@ public class TaskService {
 		
 		PageRequest pagable;
 		
-		if (sortParams.length == 1) {
+		if (sortParams.length == 0) {
 			pagable = PageRequest.of(pageNum, pageSize, Sort.unsorted());
 		} else {
 			var direction = sortParams[sortParams.length - 1].equals("desc") ? Direction.DESC : Direction.ASC; 
