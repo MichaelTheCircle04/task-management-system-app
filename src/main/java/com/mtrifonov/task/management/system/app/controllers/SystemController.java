@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -64,12 +65,15 @@ public class SystemController {
 	
 	//Return all tasks where the author is the user with a given EMAIL
 	@GetMapping("/author/{email}")
-	public ResponseEntity<PagedModel<EntityModel<TaskDTO>>> getAllTasksByAuthor(@PathVariable @Email String email, @PageableDefault
+	public ResponseEntity<PagedModel<EntityModel<TaskDTO>>> getAllTasksByAuthor(@PathVariable @Email String email, 
+			@PageableDefault(sort = {"id", "desc"}) Pageable pageable/*,
 			@RequestParam(defaultValue = "") String[] sortParams,
 		    @RequestParam(defaultValue = "0") int pageNum,
-			@RequestParam(defaultValue = "10") int pageSize) {
+			@RequestParam(defaultValue = "10") int pageSize*/) {
 		
-		var tasks = taskService.getAllTasksByAuthor(email, pageNum, pageSize, sortParams);
+		//System.out.println(sortParams.length);
+		pageable.getSort().get().forEach(o -> System.out.println(o.getProperty()));
+		var tasks = taskService.getAllTasksByAuthor(email, pageable/*, pageNum, pageSize, sortParams*/);
 		var data = pagedResourcesAssemble.toModel(tasks, taskAssembler); 
 		return ResponseEntity.ok(data);
 	}

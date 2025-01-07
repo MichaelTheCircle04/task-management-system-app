@@ -57,11 +57,30 @@ public class StubTaskRepository implements TaskRepository {
 			.id(this.seq.getAndIncrement())
 			.header("header")
 			.description("task3")
-			.status(Status.COMPLETED)
+			.status(Status.WAITING)
 			.priority(Priority.LOW)
 			.author("s.spiegel@example.com")
 			.executor("m.circle@example.com")
-			.build()));
+			.build(),
+			Task.builder()
+			.id(this.seq.getAndIncrement())
+			.header("header")
+			.description("task4")
+			.status(Status.COMPLETED)
+			.priority(Priority.MIDDLE)
+			.author("s.spiegel@example.com")
+			.executor("m.circle@example.com")
+			.build(),
+			Task.builder()
+			.id(this.seq.getAndIncrement())
+			.header("header")
+			.description("task5")
+			.status(Status.IN_PROGRESS)
+			.priority(Priority.HIGH)
+			.author("s.spiegel@example.com")
+			.executor("b.baggins@example.com")
+			.build()
+			));
 	
 	@Override
 	public void flush() {

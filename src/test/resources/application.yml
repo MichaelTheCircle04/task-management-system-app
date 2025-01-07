@@ -26,3 +26,4 @@ server:
 logging:
     level: 
         org.springframework.security: ERROR
+        org.springframework.web: TRACE

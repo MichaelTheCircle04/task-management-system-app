@@ -33,7 +33,7 @@ public class SecurityConfig {
 	private String rolePrefix;
 
 	@Bean
-	public SecurityFilterChain securityFilteChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		return http
 		.oauth2Login(Customizer.withDefaults())
 		.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))

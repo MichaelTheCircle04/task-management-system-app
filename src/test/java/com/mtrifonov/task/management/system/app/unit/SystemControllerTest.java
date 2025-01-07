@@ -3,7 +3,6 @@ package com.mtrifonov.task.management.system.app.unit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 import org.springframework.test.context.ContextConfiguration;
@@ -17,6 +16,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.mtrifonov.task.management.system.app.Application;
 import com.mtrifonov.task.management.system.app.assemblers.TaskCommentModelAssembler;
 import com.mtrifonov.task.management.system.app.assemblers.TaskModelAssembler;
+import com.mtrifonov.task.management.system.app.assemblers.TaskPagedResourcesAssembler;
 import com.mtrifonov.task.management.system.app.configs.SecurityConfig;
 import com.mtrifonov.task.management.system.app.controllers.SystemController;
 import com.mtrifonov.task.management.system.app.controllers.SystemControllerAdvice;
@@ -33,29 +33,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.stream.Stream;
-
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.text.MatchesPattern.*;
-
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 
 @Slf4j
 @WebMvcTest(controllers = SystemController.class)
 @ContextConfiguration(classes = { Application.class,
 		TaskService.class, TaskModelAssembler.class, SystemController.class, SecurityConfig.class,
-		TaskCommentModelAssembler.class, SystemControllerAdvice.class, 
+		TaskCommentModelAssembler.class, SystemControllerAdvice.class,
 		StubTaskRepository.class, StubTaskCommentRepository.class
 		})
-//@TestMethodOrder(MethodOrderer.MethodName.class)
 public class SystemControllerTest {
 	
 	@Autowired
@@ -71,7 +61,7 @@ public class SystemControllerTest {
 				.apply(springSecurity())
 				.build();
 	}
-	
+
 	@Test
 	@WithCustomUser(username = "b.baggins", email = "b.baggins@example.com")
 	void createNewTask_validRequest_statusCreated() throws Exception {
@@ -149,14 +139,14 @@ public class SystemControllerTest {
 	@WithCustomUser(username = "b.baggins", email = "b.baggins@example.com")
 	void getAllTasksByAuthor_valideRequestWithAdminRole_statusOk() throws Exception {
 		
-		var params = Map.of(
-				"sortParams", List.of("id,asc"), 
-				"pageNum", List.of("1"),
-				"pageSize", List.of("1"));
+		/*var params = Map.of(
+				"sortParams", List.of("executor,id,asc"), 
+				"pageNum", List.of("0"),
+				"pageSize", List.of("5"));*/
 		
 		var requestBuilder = MockMvcRequestBuilders
 				.get("/task/management/system/author/s.spiegel@example.com")
-				.params(MultiValueMap.fromMultiValue(params));
+				/*.params(MultiValueMap.fromMultiValue(params))*/;
 		
 		var result = mvc.perform(requestBuilder).andExpect(status().isOk()).andReturn();
 		

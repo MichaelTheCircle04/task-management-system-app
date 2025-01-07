@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.access.AccessDeniedException;
@@ -41,12 +42,12 @@ public class TaskService {
 		return task;
 	}
 	
-	public Page<Task> getAllTasksByAuthor(String email, int pageNum,
-			int pageSize, String[] sortParams) {
+	public Page<Task> getAllTasksByAuthor(String email, Pageable pageable/*, int pageNum,
+			int pageSize, String[] sortParams*/) {
 		
-		var pagable = this
-				.createPageRequest(pageNum, pageSize, sortParams);
-		return taskRepository.findAllByAuthor(email, pagable);
+		/*var pageable = this
+				.createPageRequest(pageNum, pageSize, sortParams);*/
+		return taskRepository.findAllByAuthor(email, pageable);
 	}
 	
 	public Page<Task> getAllTasksByExecutor(String email, int pageNum, int pageSize, 
