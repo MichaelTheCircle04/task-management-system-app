@@ -1,17 +1,12 @@
 package com.mtrifonov.task.management.system.app.controllers;
 
 import java.net.URI;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
@@ -66,14 +61,9 @@ public class SystemController {
 	//Return all tasks where the author is the user with a given EMAIL
 	@GetMapping("/author/{email}")
 	public ResponseEntity<PagedModel<EntityModel<TaskDTO>>> getAllTasksByAuthor(@PathVariable @Email String email, 
-			@PageableDefault(sort = {"id", "desc"}) Pageable pageable/*,
-			@RequestParam(defaultValue = "") String[] sortParams,
-		    @RequestParam(defaultValue = "0") int pageNum,
-			@RequestParam(defaultValue = "10") int pageSize*/) {
+			@PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable) {
 		
-		//System.out.println(sortParams.length);
-		pageable.getSort().get().forEach(o -> System.out.println(o.getProperty()));
-		var tasks = taskService.getAllTasksByAuthor(email, pageable/*, pageNum, pageSize, sortParams*/);
+		var tasks = taskService.getAllTasksByAuthor(email, pageable);
 		var data = pagedResourcesAssemble.toModel(tasks, taskAssembler); 
 		return ResponseEntity.ok(data);
 	}
@@ -81,11 +71,9 @@ public class SystemController {
 	//Return all tasks where the executor is the user with a given EMAIL
 	@GetMapping("/executor/{email}")
 	public ResponseEntity<PagedModel<EntityModel<TaskDTO>>> getAllTasksByExecutor(@PathVariable @Email String email,
-			@RequestParam(defaultValue = "") String[] sortParams,
-			@RequestParam(defaultValue = "0") int pageNum,
-			@RequestParam(defaultValue = "10") int pageSize) {
+			@PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable) {
 		
-		var tasks = taskService.getAllTasksByExecutor(email, pageNum, pageSize, sortParams);
+		var tasks = taskService.getAllTasksByExecutor(email, pageable);
 		var data = pagedResourcesAssemble.toModel(tasks, taskAssembler); 
 		return ResponseEntity.ok(data);
 
@@ -94,11 +82,9 @@ public class SystemController {
 	//Return all comments related to task with given ID
 	@GetMapping("/{id}/comments")
 	public ResponseEntity<PagedModel<EntityModel<TaskCommentDTO>>> getAllComments(@PathVariable long id, Authentication user,
-			@RequestParam(defaultValue = "") String[] sortParams,
-			@RequestParam(defaultValue = "0") int pageNum,
-			@RequestParam(defaultValue = "10") int pageSize) {
+			@PageableDefault(sort = {"id"}, direction = Direction.ASC) Pageable pageable) {
 		
-		var comments = taskService.getAllComments(id, user, pageNum, pageSize, sortParams);
+		var comments = taskService.getAllComments(id, user, pageable);
 		var model = pagedCommentResourcesAssemble.toModel(comments, taskCommentAssembler);
 		model.add(Link.of("Task " + id + ": ", "http://" + adress + "/task/management/system/" + id));
 		return ResponseEntity.ok(model);
@@ -108,11 +94,9 @@ public class SystemController {
 	@GetMapping("/{id}/comments/{email}")
 	public ResponseEntity<PagedModel<TaskCommentDTO>> getAllCommentsByAuthor(@PathVariable long id, 
 			@PathVariable @Email String email, Authentication user,
-			@RequestParam(defaultValue = "") String[] sortParams,
-			@RequestParam(defaultValue = "0") int pageNum,
-			@RequestParam(defaultValue = "10") int pageSize) {
+			@PageableDefault(sort = {"id"}, direction = Direction.ASC) Pageable pageable) {
 		
-		var comments = taskService.getAllCommentsByAuthor(id, email, user, pageNum, pageSize, sortParams);
+		var comments = taskService.getAllCommentsByAuthor(id, email, user, pageable);
 				
 		var data = comments.stream().map(c -> { 
 						c.setTask(Task.builder().id(id).build());

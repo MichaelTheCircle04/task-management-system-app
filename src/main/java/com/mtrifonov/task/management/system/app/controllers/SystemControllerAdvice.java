@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
@@ -22,6 +23,11 @@ public class SystemControllerAdvice {
 		e.getStackTrace();
 		return ResponseEntity.status(400).body(e.getMessage());
 	}*/
+	
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	public ResponseEntity<String> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+		return ResponseEntity.status(400).body("Error due to missing required parameter: " + e.getMessage());
+	}
 	
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException e) {

@@ -1,6 +1,5 @@
 package com.mtrifonov.task.management.system.app.unit;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 
@@ -12,11 +11,9 @@ import org.springframework.test.web.servlet.result.ContentResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
-
 import com.mtrifonov.task.management.system.app.Application;
 import com.mtrifonov.task.management.system.app.assemblers.TaskCommentModelAssembler;
 import com.mtrifonov.task.management.system.app.assemblers.TaskModelAssembler;
-import com.mtrifonov.task.management.system.app.assemblers.TaskPagedResourcesAssembler;
 import com.mtrifonov.task.management.system.app.configs.SecurityConfig;
 import com.mtrifonov.task.management.system.app.controllers.SystemController;
 import com.mtrifonov.task.management.system.app.controllers.SystemControllerAdvice;
@@ -26,8 +23,6 @@ import com.mtrifonov.task.management.system.app.stubs.StubTaskCommentRepository;
 import com.mtrifonov.task.management.system.app.stubs.StubTaskRepository;
 
 import lombok.extern.slf4j.Slf4j;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -36,7 +31,8 @@ import java.util.Map;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.text.MatchesPattern.*;
-import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 @Slf4j
@@ -48,15 +44,12 @@ import org.junit.jupiter.api.Test;
 		})
 public class SystemControllerTest {
 	
-	@Autowired
-	WebApplicationContext ctx;
+	static MockMvc mvc;
 	
-	MockMvc mvc;
-	
-	@BeforeEach
-	void setup() {
+	@BeforeAll
+	static void setup(WebApplicationContext ctx) {
 
-		this.mvc = MockMvcBuilders
+		mvc = MockMvcBuilders
 				.webAppContextSetup(ctx)
 				.apply(springSecurity())
 				.build();
@@ -88,11 +81,11 @@ public class SystemControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.with(csrf());
 		
-		var result = mvc.perform(requestBuilder)
-				.andExpect(status().isBadRequest())
-				.andReturn();
-
-		assertTrue(result.getResponse().getContentAsString().contains("Header must be present"));	
+		mvc.perform(requestBuilder)
+				.andExpectAll(
+						status().isBadRequest(),
+						content().string(containsString("Header must be present"))
+						);
 	}
 	
 	@Test
@@ -139,14 +132,14 @@ public class SystemControllerTest {
 	@WithCustomUser(username = "b.baggins", email = "b.baggins@example.com")
 	void getAllTasksByAuthor_valideRequestWithAdminRole_statusOk() throws Exception {
 		
-		/*var params = Map.of(
+		var params = Map.of(
 				"sortParams", List.of("executor,id,asc"), 
 				"pageNum", List.of("0"),
-				"pageSize", List.of("5"));*/
+				"pageSize", List.of("5"));
 		
 		var requestBuilder = MockMvcRequestBuilders
 				.get("/task/management/system/author/s.spiegel@example.com")
-				/*.params(MultiValueMap.fromMultiValue(params))*/;
+				.params(MultiValueMap.fromMultiValue(params));
 		
 		var result = mvc.perform(requestBuilder).andExpect(status().isOk()).andReturn();
 		
@@ -312,6 +305,69 @@ public class SystemControllerTest {
 					status().isBadRequest(), 
 					content().string(containsString("Error deserializing request body: "))
 					);
+	}
+	
+	@Test
+	@WithCustomUser(username = "b.baggins", email = "b.baggins@example.com")
+	void updateStatus_validRequestNotAuthorOrExecutorPerformingWithAdminRole_statusOk() throws Exception {
+		
+		var requestBuilder = MockMvcRequestBuilders
+				.put("/task/management/system/2/status")
+				.param("newStatus", "COMPLETED")
+				.with(csrf());
+		
+		mvc.perform(requestBuilder).andExpect(status().isOk());
+	}
+	
+	@Test
+	@WithCustomUser(username = "s.spiegel", email = "s.spiegel@example.com")
+	void updateStatus_validRequestAuthorPerformingWithUserRole_statusOk() throws Exception {
+		
+		var requestBuilder = MockMvcRequestBuilders
+				.put("/task/management/system/2/status")
+				.param("newStatus", "COMPLETED")
+				.with(csrf());
+		
+		mvc.perform(requestBuilder).andExpect(status().isOk());
+	}
+	
+	@Test
+	@WithCustomUser(username = "m.circle", email = "m.circle@example.com")
+	void updateStatus_validRequestExecutorPerformingWithUserRole_statusOk() throws Exception {
+		
+		var requestBuilder = MockMvcRequestBuilders
+				.put("/task/management/system/2/status")
+				.param("newStatus", "COMPLETED")
+				.with(csrf());
+		
+		mvc.perform(requestBuilder).andExpect(status().isOk());
+	}
+	
+	@Test
+	@WithCustomUser(username = "b.baggins", email = "b.baggins@example.com", role = "ROLE_USER")
+	void updateStatus_validRequestNotAuthorOrExecutorPerformingWithUserRole_statusForbidden() throws Exception {
+		
+		var requestBuilder = MockMvcRequestBuilders
+				.put("/task/management/system/2/status")
+				.param("newStatus", "COMPLETED")
+				.with(csrf());
+		
+		mvc.perform(requestBuilder).andExpect(status().isForbidden());
+	}
+	
+	@Test
+	@WithCustomUser(username = "s.spiegel", email = "s.spiegel@example.com")
+	void updateStatus_invalidRequestWithAdminRole_statusBadRequest() throws Exception {
+		
+		var requestBuilder = MockMvcRequestBuilders
+				.put("/task/management/system/2/status")
+				.param("newStaMtus", "COMPLETED")
+				.with(csrf());
+		
+		mvc.perform(requestBuilder).andExpectAll(
+				status().isBadRequest(), 
+				content().string(containsString("Error due to missing required parameter"))
+				);
 	}
 	
 	@Test

@@ -254,9 +254,16 @@ public class StubTaskCommentRepository implements TaskCommentRepository {
 		var orders = pageable.getSort().get().toList();
 		
 		if (orders.isEmpty()) {
-			data = comments.stream().filter(c -> id.equals(c.getTask().getId())).toList();
+			data = comments.stream()
+					.filter(c -> 
+						id.equals(c.getTask().getId())
+						)
+					.toList();
 		} else {
-			data = comments.stream().filter(c -> id.equals(c.getTask().getId()))
+			data = comments.stream()
+					.filter(c -> 
+						id.equals(c.getTask().getId())
+						)
 					.sorted((Comparator<TaskComment>) StubTaskRepository.getComparator(orders, TaskComment.class))
 					.toList();
 		}
@@ -278,13 +285,15 @@ public class StubTaskCommentRepository implements TaskCommentRepository {
 			data = comments.stream()
 					.filter(c -> 
 						id.equals(c.getTask().getId()) && 
-						email.equals(c.getAuthor()))
+						email.equals(c.getAuthor())
+						)
 					.toList();
 		} else {
 			data = comments.stream()
 					.filter(c -> 
 						id.equals(c.getTask().getId()) && 
-						email.equals(c.getAuthor()))
+						email.equals(c.getAuthor())
+						)
 					.sorted((Comparator<TaskComment>) StubTaskRepository.getComparator(orders, TaskComment.class))
 					.toList();
 		}

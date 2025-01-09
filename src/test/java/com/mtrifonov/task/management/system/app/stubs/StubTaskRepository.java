@@ -276,10 +276,14 @@ public class StubTaskRepository implements TaskRepository {
 		var orders = pageable.getSort().get().toList();
 		
 		if (orders.isEmpty()) {
-			data = tasks.stream().filter(t -> t.getAuthor().equals(email)).toList();
+			data = tasks.stream()
+					.filter(t -> t.getAuthor().equals(email))
+					.toList();
 		} else {
-			data = tasks.stream().filter(t -> t.getAuthor().equals(email))
-					.sorted((Comparator<Task>) getComparator(orders, Task.class)).toList();
+			data = tasks.stream()
+					.filter(t -> t.getAuthor().equals(email))
+					.sorted((Comparator<Task>) getComparator(orders, Task.class))
+					.toList();
 		}
 		
 		long start = pageable.getOffset();
@@ -295,10 +299,14 @@ public class StubTaskRepository implements TaskRepository {
 		var orders = pageable.getSort().get().toList();
 		
 		if (orders.isEmpty()) {
-			data = tasks.stream().filter(t -> t.getExecutor().equals(email)).toList();
+			data = tasks.stream()
+					.filter(t -> t.getExecutor().equals(email))
+					.toList();
 		} else {
-			data = tasks.stream().filter(t -> t.getExecutor().equals(email))
-					.sorted((Comparator<Task>) getComparator(orders, Task.class)).toList();
+			data = tasks.stream()
+					.filter(t -> t.getExecutor().equals(email))
+					.sorted((Comparator<Task>) getComparator(orders, Task.class))
+					.toList();
 		}
 				
 		long start = pageable.getOffset();
