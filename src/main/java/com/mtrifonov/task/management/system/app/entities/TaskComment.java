@@ -33,7 +33,7 @@ public class TaskComment {
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="task_comments_seq")
-    @SequenceGenerator(name="task_comments_seq", sequenceName="task_comment_task_comment_id_seq", allocationSize = 1)
+    @SequenceGenerator(name="task_comments_seq", sequenceName="task_comments_task_comment_id_seq")
     @Column(name = "task_comment_id")
 	private long id;
 	

@@ -1,6 +1,6 @@
 spring:
     profiles:
-        active: ${PROFILES:prod, default}
+        active: ${PROFILES:prod}
     datasource:
         url: ${DB_URL:jdbc:postgresql://localhost:5432/test}
         username: ${DB_USERNAME:postgres}
@@ -13,7 +13,7 @@ spring:
             client:
                 provider:
                     keycloak: 
-                        issuer-uri: ${ISSUER_URI:http://localhost:8080/realms/taskmanagementrealm}
+                        issuer-uri: ${CLIENT_ISSUER_URI:http://localhost:8080/realms/taskmanagementrealm}
                         user-name-attribute: ${USER_NAME_CLAIM:preferred_username}
                 registration:
                     keycloak:
@@ -28,3 +28,6 @@ spring:
 server:
     port: ${SERVER_PORT:18080}
     advertised-adress: ${ADVERTISED_ADRESS:localhost:18080}
+logging:
+    level: 
+        org.springframework.security: TRACE

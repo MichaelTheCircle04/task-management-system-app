@@ -36,7 +36,7 @@ public class Task {
     
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="tasks_seq")
-    @SequenceGenerator(name="tasks_seq", sequenceName="tasks_task_id_seq", allocationSize = 1)
+    @SequenceGenerator(name="tasks_seq", sequenceName="tasks_task_id_seq")
     @Column(name = "task_id")
     private long id;
     

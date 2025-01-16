@@ -1,0 +1,55 @@
+services:
+    db-app:
+        image: postgres:16.6-alpine3.21
+        container_name: postgres
+        environment:
+            - 'POSTGRES_DB=postgres'
+            - 'POSTGRES_USER=postgres'
+            - 'POSTGRES_PASSWORD=postgres'
+            - 'PGDATA=/var/lib/postgresql/data/pgdata'
+        volumes:
+            - './database.sql:/docker-entrypoint-initdb.d/database.sql'
+        ports:
+            - '5433:5432'
+        restart: unless-stopped
+        networks:
+            - 'db_net'
+    system-app:
+        build: .
+        container_name: system
+        environment:
+            - 'PROFILES=prod, initDB'
+            - 'DB_URL=jdbc:postgresql://host.docker.internal:5433/postgres'
+            - 'JWK_SET_URI=http://host.docker.internal:8080/realms/taskmanagementrealm/protocol/openid-connect/certs'
+            - 'ISSUER_URI=http://localhost:8080/realms/taskmanagementrealm'
+            - 'CLIENT_ISSUER_URI=http://host.docker.internal:8080/realms/taskmanagementrealm'
+        ports:
+            - '18080:18080' 
+        restart: unless-stopped
+        depends_on:
+            - 'db-app'
+            - 'keycloak-app'
+    keycloak-app:
+        image: quay.io/keycloak/keycloak:26.0.0
+        container_name: keycloak
+        environment:
+            - 'KC_BOOTSTRAP_ADMIN_USERNAME=admin'
+            - 'KC_BOOTSTRAP_ADMIN_PASSWORD=password' 
+        command: 
+            - start-dev
+            - --import-realm
+        volumes: 
+            - './taskmanagementrealm-realm.json:/opt/keycloak/data/import/taskmanagementrealm-realm.json'
+        ports:
+            - '8080:8080'
+        restart: unless-stopped
+        networks:
+            - 'kc_net'
+networks:
+    default:
+       driver: bridge
+       name: default_net
+    db_net:
+       driver: bridge
+    kc_net:
+       driver: bridge
