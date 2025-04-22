@@ -6,10 +6,13 @@ import org.springframework.web.util.UriComponents;
 
 import com.mtrifonov.task.management.system.app.entities.Task;
 
+/**
+*
+* @Mikhail Trifonov
+*/
 public class TaskPagedResourcesAssembler extends PagedResourcesAssembler<Task> {
 
 	public TaskPagedResourcesAssembler(HateoasPageableHandlerMethodArgumentResolver resolver, UriComponents baseUri) {
 		super(resolver, baseUri);
 	}
-
 }

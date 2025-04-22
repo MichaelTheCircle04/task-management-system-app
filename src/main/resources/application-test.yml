@@ -1,0 +1,21 @@
+#spring:
+#    datasource:
+#        url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+#        username: sa
+#        driver-class-name: org.h2.Driver
+spring:
+    jpa:
+        show-sql: true
+        hibernate: 
+            ddl-auto: validate
+        properties:
+            hibernate:
+                format_sql: true              
+server:
+    port: ${SERVER_PORT:18080}
+    advertised-address: ${ADVERTISED_ADDRESS:localhost:18080}
+
+#logging:
+#    level: 
+#        org.springframework.security: TRACE
+#        org.springframework.web: TRACE 

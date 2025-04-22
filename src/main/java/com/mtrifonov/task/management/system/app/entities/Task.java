@@ -12,7 +12,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,9 +35,9 @@ public class Task {
     
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="tasks_seq")
-    @SequenceGenerator(name="tasks_seq", sequenceName="tasks_task_id_seq")
+    @SequenceGenerator(name="tasks_seq", sequenceName="tasks_task_id_seq", initialValue = 6)
     @Column(name = "task_id")
-    private long id;
+    private Long id;
     
     private String header;
     

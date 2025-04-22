@@ -1,4 +1,11 @@
 spring:
+    jpa:
+        show-sql: true
+        hibernate: 
+            ddl-auto: validate
+        properties:
+            hibernate:
+                format_sql: true 
     profiles:
         active: ${PROFILES:prod}
     datasource:
@@ -27,7 +34,8 @@ spring:
                     jwk-set-uri: ${JWK_SET_URI:http://localhost:8080/realms/taskmanagementrealm/protocol/openid-connect/certs}
 server:
     port: ${SERVER_PORT:18080}
-    advertised-adress: ${ADVERTISED_ADRESS:localhost:18080}
+    advertised-address: ${ADVERTISED_ADDRESS:localhost:18080}
 logging:
     level: 
         org.springframework.security: TRACE
+        org.springframework.web: TRACE 

@@ -20,9 +20,9 @@ services:
         environment:
             - 'PROFILES=prod, initDB'
             - 'DB_URL=jdbc:postgresql://host.docker.internal:5433/postgres'
-            - 'JWK_SET_URI=http://host.docker.internal:8080/realms/taskmanagementrealm/protocol/openid-connect/certs'
-            - 'ISSUER_URI=http://localhost:8080/realms/taskmanagementrealm'
-            - 'CLIENT_ISSUER_URI=http://host.docker.internal:8080/realms/taskmanagementrealm'
+            - 'JWK_SET_URI=http://host.docker.internal:8080/realms/taskmanagementrealm/protocol/openid-connect/certs' 
+            - 'ISSUER_URI=http://localhost:8080/realms/taskmanagementrealm' #Адрес который указан в токене
+            - 'CLIENT_ISSUER_URI=http://host.docker.internal:8080/realms/taskmanagementrealm' #Адрес куда нужно обращаться
         ports:
             - '18080:18080' 
         restart: unless-stopped

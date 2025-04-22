@@ -1,7 +1,6 @@
 package com.mtrifonov.task.management.system.app.controllers;
 
 import java.net.URI;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -10,7 +9,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,24 +19,26 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import com.mtrifonov.task.management.system.app.assemblers.TaskCommentModelAssembler;
 import com.mtrifonov.task.management.system.app.assemblers.TaskCommentPagedResourcesAssembler;
 import com.mtrifonov.task.management.system.app.assemblers.TaskModelAssembler;
 import com.mtrifonov.task.management.system.app.assemblers.TaskPagedResourcesAssembler;
 import com.mtrifonov.task.management.system.app.dto.TaskCommentDTO;
 import com.mtrifonov.task.management.system.app.dto.TaskDTO;
-import com.mtrifonov.task.management.system.app.entities.Task;
 import com.mtrifonov.task.management.system.app.entities.Task.Priority;
 import com.mtrifonov.task.management.system.app.entities.Task.Status;
 import com.mtrifonov.task.management.system.app.services.TaskService;
-
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 
+/**
+*
+* @Mikhail Trifonov
+*/
 @Controller
-@RequestMapping("task/management/system")
+@RequestMapping("/task/management/system")
 @RequiredArgsConstructor
 public class SystemController {
 	
@@ -46,22 +47,34 @@ public class SystemController {
 	private final TaskCommentModelAssembler taskCommentAssembler;
 	private final TaskPagedResourcesAssembler pagedResourcesAssemble;
 	private final TaskCommentPagedResourcesAssembler pagedCommentResourcesAssemble;
-	@Value("${server.advertised-adress}")
-	private String adress;
+	@Value("${server.advertised-address}")
+	private String address;
 
 	//Return a task with a given ID
 	@GetMapping("/{id}")
-	public ResponseEntity<EntityModel<TaskDTO>> getTaskById(@PathVariable long id, 
-			Authentication user) {
+	public ResponseEntity<EntityModel<TaskDTO>> getTaskById(@PathVariable Long id, //covered
+		JwtAuthenticationToken user) {
 		
 		var task = taskService.getTaskById(id, user);
 		return ResponseEntity.ok(taskAssembler.toModel(task));
 	}
+
+	//Return a comment with a given ID
+	@GetMapping("/comments/{id}")
+	public ResponseEntity<EntityModel<TaskCommentDTO>> getCommentById(@PathVariable Long id, //covered
+		JwtAuthenticationToken user) {
+
+		var comment = taskService.getCommentById(id, user);
+		var model = taskCommentAssembler.toModel(comment);
+		model.add(Link.of("http://" + address + "/task/management/system/" + id, "Task " + comment.getTask().getId()));
+		return ResponseEntity.ok(model);
+
+	}
 	
 	//Return all tasks where the author is the user with a given EMAIL
 	@GetMapping("/author/{email}")
-	public ResponseEntity<PagedModel<EntityModel<TaskDTO>>> getAllTasksByAuthor(@PathVariable @Email String email, 
-			@PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable) {
+	public ResponseEntity<PagedModel<EntityModel<TaskDTO>>> getAllTasksByAuthor(@PathVariable @Email String email, //covered
+		@PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable) {
 		
 		var tasks = taskService.getAllTasksByAuthor(email, pageable);
 		var data = pagedResourcesAssemble.toModel(tasks, taskAssembler); 
@@ -70,72 +83,62 @@ public class SystemController {
 	
 	//Return all tasks where the executor is the user with a given EMAIL
 	@GetMapping("/executor/{email}")
-	public ResponseEntity<PagedModel<EntityModel<TaskDTO>>> getAllTasksByExecutor(@PathVariable @Email String email,
-			@PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable) {
+	public ResponseEntity<PagedModel<EntityModel<TaskDTO>>> getAllTasksByExecutor(@PathVariable @Email String email, //covered
+		@PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable) {
 		
 		var tasks = taskService.getAllTasksByExecutor(email, pageable);
 		var data = pagedResourcesAssemble.toModel(tasks, taskAssembler); 
 		return ResponseEntity.ok(data);
 
 	}
-	
+
 	//Return all comments related to task with given ID
 	@GetMapping("/{id}/comments")
-	public ResponseEntity<PagedModel<EntityModel<TaskCommentDTO>>> getAllComments(@PathVariable long id, Authentication user,
-			@PageableDefault(sort = {"id"}, direction = Direction.ASC) Pageable pageable) {
+	public ResponseEntity<PagedModel<EntityModel<TaskCommentDTO>>> getAllComments(@PathVariable Long id, JwtAuthenticationToken user, //covered
+		@PageableDefault(sort = {"task_comment_id"}, direction = Direction.ASC) Pageable pageable) {
 		
 		var comments = taskService.getAllComments(id, user, pageable);
 		var model = pagedCommentResourcesAssemble.toModel(comments, taskCommentAssembler);
-		model.add(Link.of("Task " + id + ": ", "http://" + adress + "/task/management/system/" + id));
+		model.add(Link.of("http://" + address + "/task/management/system/" + id, "Task " + id));
 		return ResponseEntity.ok(model);
 	}
 	
 	//Return all comments related to task with given ID and posted by user with given EMAIL 
 	@GetMapping("/{id}/comments/{email}")
-	public ResponseEntity<PagedModel<TaskCommentDTO>> getAllCommentsByAuthor(@PathVariable long id, 
-			@PathVariable @Email String email, Authentication user,
-			@PageableDefault(sort = {"id"}, direction = Direction.ASC) Pageable pageable) {
+	public ResponseEntity<PagedModel<TaskCommentDTO>> getAllCommentsByAuthor(@PathVariable Long id, //covered
+		@PathVariable @Email String email, JwtAuthenticationToken user, HttpServletRequest request,
+		@PageableDefault(sort = {"task_comment_id"}, direction = Direction.ASC) Pageable pageable) {
 		
 		var comments = taskService.getAllCommentsByAuthor(id, email, user, pageable);
-				
-		var data = comments.stream().map(c -> { 
-						c.setTask(Task.builder().id(id).build());
-						return c; 
-						}).map(taskCommentAssembler::toDTO).toList();
-		
-		var model = PagedModel.of(data, 
-				new PagedModel.PageMetadata(
-						comments.getSize(),
-						comments.getNumber(),
-						comments.getTotalElements())
-				);
-				
-		model.add(Link.of("Task " + id + ": ", "http://" + adress + "/task/management/system/" + id));
+		var model = pagedCommentResourcesAssemble.createBaseModel(comments, request);
+		model.add(Link.of("http://" + address + "/task/management/system/" + id, "Task " + id));
 		return ResponseEntity.ok(model);
 	}
 	
 	//Create task with given body
 	@PostMapping("/create")
-	public ResponseEntity<Void> createTask(@Valid @RequestBody TaskDTO data, 
-			Authentication creator) {
+	public ResponseEntity<Void> createTask(@Valid @RequestBody TaskDTO data, //covered
+		JwtAuthenticationToken creator) {
 		
 		var task = taskService.createTask(data, creator);
-		return ResponseEntity.created(URI.create("http://" + adress + "/task/management/system/" + task.getId())).build();
+		return ResponseEntity.created(URI.create("http://" + address + "/task/management/system/" + task.getId())).build();
 	}
-	
-	//Delete the task with a given ID
-	@DeleteMapping("/{id}/delete")
-	public ResponseEntity<Void> deleteTask(@PathVariable long id) {
+
 		
-		taskService.deleteTaskById(id);
-		return ResponseEntity.ok().build();
+	//Add a comment with a given TEXT to a task with a given ID
+	@PostMapping("/{id}/comment")
+	public ResponseEntity<Void> addComment(@PathVariable Long id, //covered
+			@RequestBody String text, JwtAuthenticationToken user) {
+		
+		var comment = taskService.addComment(id, text, user);
+		return ResponseEntity.created(URI.create("http://" + address + "/task/management/system/comments/" + comment.getId())).build();
 	}
 	
 	//Change the status of a task with a given ID
 	@PutMapping("/{id}/status")
-	public ResponseEntity<Void> updateStatus(@PathVariable long id, 
-			@RequestParam Status newStatus, 
-			Authentication user) {
+	public ResponseEntity<Void> updateStatus(@PathVariable Long id, //covered
+		@RequestParam Status newStatus, 
+		JwtAuthenticationToken user) {
 		
 		taskService.updateStatus(id, newStatus, user);
 		return ResponseEntity.ok().build();
@@ -143,7 +146,7 @@ public class SystemController {
 	
 	//Change the priority of a task with a given ID
 	@PutMapping("/{id}/priority")
-	public ResponseEntity<Void> updatePriority(@PathVariable long id, 
+	public ResponseEntity<Void> updatePriority(@PathVariable Long id, //covered
 			@RequestParam Priority newPriority) {
 		
 		taskService.updatePriority(id, newPriority);
@@ -152,19 +155,18 @@ public class SystemController {
 	
 	//Set the user with the given EMAIL as the executor of the task with the given ID
 	@PutMapping("/{id}/executor")
-	public ResponseEntity<Void> setExecutor(@PathVariable long id, 
+	public ResponseEntity<Void> setExecutor(@PathVariable Long id, //covered
 			@RequestParam @Email String email) {
 		
 		taskService.setExecutort(id, email);
 		return ResponseEntity.ok().build();
 	}
-	
-	//Add a comment with a given TEXT to a task with a given ID
-	@PostMapping("/{id}/comment")
-	public ResponseEntity<Void> addComment(@PathVariable long id,
-			@RequestBody String text, Authentication user) {
-		
-		var comment = taskService.addComment(id, text, user);
-		return ResponseEntity.created(URI.create("http://" + adress + "/task/management/system/" + id + "/comment" + comment.getId())).build();
+
+	//Delete the task with a given ID
+	@DeleteMapping("/{id}/delete")
+	public ResponseEntity<Void> deleteTask(@PathVariable Long id) { //covered
+			
+		taskService.deleteTaskById(id);
+		return ResponseEntity.ok().build();
 	}
 }
