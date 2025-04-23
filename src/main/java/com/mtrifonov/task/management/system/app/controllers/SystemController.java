@@ -49,7 +49,7 @@ public class SystemController {
 	private final TaskCommentModelAssembler taskCommentAssembler;
 	private final TaskPagedResourcesAssembler pagedResourcesAssemble;
 	private final TaskCommentPagedResourcesAssembler pagedCommentResourcesAssemble;
-	//@Value("${server.advertised-address}")
+	@Value("${server.advertised-address}")
 	private String address;
 
 	//Return a task with a given ID
