@@ -57,7 +57,7 @@ public class TaskService {
 		return comment;
 	}
 		
-	public Page<Task> getAllTasksByAuthor(String email, Pageable pageable) {
+	public Page<Task> getAllTasksByAuthor(String email, Pageable pageable) {		
 		return taskRepository.findAllByAuthor(email, pageable);
 	}
 	

@@ -12,17 +12,15 @@ services:
         ports:
             - '5433:5432'
         restart: unless-stopped
-        networks:
-            - 'db_net'
     system-app:
         build: .
         container_name: system
         environment:
-            - 'PROFILES=prod, initDB'
+            - 'PROFILES=prod'
             - 'DB_URL=jdbc:postgresql://host.docker.internal:5433/postgres'
             - 'JWK_SET_URI=http://host.docker.internal:8080/realms/taskmanagementrealm/protocol/openid-connect/certs' 
             - 'ISSUER_URI=http://localhost:8080/realms/taskmanagementrealm' #Адрес который указан в токене
-            - 'CLIENT_ISSUER_URI=http://host.docker.internal:8080/realms/taskmanagementrealm' #Адрес куда нужно обращаться
+            - 'CLIENT_ISSUER_URI=http://host.docker.internal:8080/realms/taskmanagementrealm' #Адрес куда нужно обращаться клиенту
         ports:
             - '18080:18080' 
         restart: unless-stopped
@@ -43,13 +41,3 @@ services:
         ports:
             - '8080:8080'
         restart: unless-stopped
-        networks:
-            - 'kc_net'
-networks:
-    default:
-       driver: bridge
-       name: default_net
-    db_net:
-       driver: bridge
-    kc_net:
-       driver: bridge

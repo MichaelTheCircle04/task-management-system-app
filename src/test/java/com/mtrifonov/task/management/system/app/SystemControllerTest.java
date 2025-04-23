@@ -45,7 +45,7 @@ import org.junit.jupiter.api.Test;
 		TaskCommentModelAssembler.class,
 		TaskRepository.class, TaskCommentRepository.class
 	})
-@ActiveProfiles("test")
+@ActiveProfiles(value = {"test"})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) 
 public class SystemControllerTest {
 	
@@ -58,7 +58,7 @@ public class SystemControllerTest {
 
 	@BeforeEach
 	void setup(WebApplicationContext ctx) {
-		
+
 		mvc = MockMvcBuilders
 				.webAppContextSetup(ctx)
 				.apply(springSecurity())

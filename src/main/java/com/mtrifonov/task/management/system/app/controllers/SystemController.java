@@ -1,6 +1,7 @@
 package com.mtrifonov.task.management.system.app.controllers;
 
 import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import com.mtrifonov.task.management.system.app.assemblers.TaskCommentModelAssembler;
 import com.mtrifonov.task.management.system.app.assemblers.TaskCommentPagedResourcesAssembler;
 import com.mtrifonov.task.management.system.app.assemblers.TaskModelAssembler;
@@ -28,7 +30,7 @@ import com.mtrifonov.task.management.system.app.dto.TaskDTO;
 import com.mtrifonov.task.management.system.app.entities.Task.Priority;
 import com.mtrifonov.task.management.system.app.entities.Task.Status;
 import com.mtrifonov.task.management.system.app.services.TaskService;
-import jakarta.servlet.http.HttpServletRequest;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +49,7 @@ public class SystemController {
 	private final TaskCommentModelAssembler taskCommentAssembler;
 	private final TaskPagedResourcesAssembler pagedResourcesAssemble;
 	private final TaskCommentPagedResourcesAssembler pagedCommentResourcesAssemble;
-	@Value("${server.advertised-address}")
+	//@Value("${server.advertised-address}")
 	private String address;
 
 	//Return a task with a given ID
@@ -105,12 +107,12 @@ public class SystemController {
 	
 	//Return all comments related to task with given ID and posted by user with given EMAIL 
 	@GetMapping("/{id}/comments/{email}")
-	public ResponseEntity<PagedModel<TaskCommentDTO>> getAllCommentsByAuthor(@PathVariable Long id, //covered
-		@PathVariable @Email String email, JwtAuthenticationToken user, HttpServletRequest request,
+	public ResponseEntity<PagedModel<EntityModel<TaskCommentDTO>>> getAllCommentsByAuthor(@PathVariable Long id, //covered
+		@PathVariable @Email String email, JwtAuthenticationToken user,
 		@PageableDefault(sort = {"task_comment_id"}, direction = Direction.ASC) Pageable pageable) {
 		
 		var comments = taskService.getAllCommentsByAuthor(id, email, user, pageable);
-		var model = pagedCommentResourcesAssemble.createBaseModel(comments, request);
+		var model = pagedCommentResourcesAssemble.toModel(comments, taskCommentAssembler);
 		model.add(Link.of("http://" + address + "/task/management/system/" + id, "Task " + id));
 		return ResponseEntity.ok(model);
 	}

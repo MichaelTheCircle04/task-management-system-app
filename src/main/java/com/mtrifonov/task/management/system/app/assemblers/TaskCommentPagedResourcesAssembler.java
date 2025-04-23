@@ -15,23 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 * @Mikhail Trifonov
 */
 public class TaskCommentPagedResourcesAssembler extends PagedResourcesAssembler<TaskComment> {
-
+	
 	public TaskCommentPagedResourcesAssembler(HateoasPageableHandlerMethodArgumentResolver resolver, UriComponents baseUri) {
 		super(resolver, baseUri);
-	}
-
-	public PagedModel<TaskCommentDTO> createBaseModel(Page<TaskComment> page, HttpServletRequest request) {
-
-		var data = page.map(TaskCommentDTO::toDTO).toList(); 
-				
-		var model = PagedModel.of(data, 
-				new PagedModel.PageMetadata(
-						page.getSize(),
-						page.getNumber(),
-						page.getTotalElements())
-				);
-		
-		PaginationUtils.addPaginationLinks(page, model, URI.create(request.getRequestURL().toString()));		
-		return model;
 	}
 }
