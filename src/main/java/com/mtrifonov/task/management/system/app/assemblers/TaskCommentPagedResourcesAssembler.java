@@ -6,7 +6,6 @@ import org.springframework.data.web.HateoasPageableHandlerMethodArgumentResolver
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.web.util.UriComponents;
-import com.mtrifonov.task.management.system.app.dto.TaskCommentDTO;
 import com.mtrifonov.task.management.system.app.entities.TaskComment;
 import jakarta.servlet.http.HttpServletRequest;
 

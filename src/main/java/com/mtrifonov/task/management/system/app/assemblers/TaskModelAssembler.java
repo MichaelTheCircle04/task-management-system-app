@@ -7,7 +7,6 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.UriTemplate;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
-import com.mtrifonov.task.management.system.app.dto.TaskDTO;
 import com.mtrifonov.task.management.system.app.entities.Task;
 
 /**
@@ -15,15 +14,15 @@ import com.mtrifonov.task.management.system.app.entities.Task;
 * @Mikhail Trifonov
 */
 @Component
-public class TaskModelAssembler implements RepresentationModelAssembler<Task, EntityModel<TaskDTO>>{
+public class TaskModelAssembler implements RepresentationModelAssembler<Task, EntityModel<Task>>{
 
 	@Value("${server.advertised-address}")
 	private String address;
 	
 	@Override
-	public EntityModel<TaskDTO> toModel(Task t) {
+	public EntityModel<Task> toModel(Task t) {
 		
-		var model = EntityModel.of(TaskDTO.toDTO(t));
+		var model = EntityModel.of(t);
 
 		var self = Link.of("http://" + address + "/task/management/system/" + t.getId(), IanaLinkRelations.SELF); //на себя
 		model.add(self);

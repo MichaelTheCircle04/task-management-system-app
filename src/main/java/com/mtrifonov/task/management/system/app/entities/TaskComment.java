@@ -1,5 +1,7 @@
 package com.mtrifonov.task.management.system.app.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityResult;
@@ -42,6 +44,7 @@ import lombok.ToString;
             @FieldResult(name = "text", column = "text")
         })
 })
+@JsonIgnoreProperties(value = {"id", "task"})
 public class TaskComment {
 	
 	@Id

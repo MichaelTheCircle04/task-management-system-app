@@ -10,7 +10,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.mtrifonov.task.management.system.app.dto.TaskDTO;
 import com.mtrifonov.task.management.system.app.entities.Task;
 import com.mtrifonov.task.management.system.app.entities.Task.Priority;
 import com.mtrifonov.task.management.system.app.entities.Task.Status;
@@ -85,22 +84,25 @@ public class TaskService {
 		return obtainPage(repoCall, id, user);
 	}
 	
-	public Task createTask(TaskDTO data, JwtAuthenticationToken creator) {
+	public void createTask(Task task, JwtAuthenticationToken creator) {
 		
 		var jwt = creator.getToken();
-		var task = Task.builder()
-				.header(data.getHeader())
-				.description(data.getDescription())
-				.status(Status.WAITING)
-				.priority(data.getPriority())
-				.author(jwt.getClaimAsString("email"))
-				.build();
 		
-		var created = taskRepository.save(task);
-		return created;
+		if (task.getStatus() == null) {
+			task.setStatus(Status.WAITING);
+		}
+
+		task.setAuthor(jwt.getClaimAsString("email"));
+
+		if (task.getExecutor() == null) {
+			task.setExecutor("EXPECTED");
+		}
+		
+		taskRepository.save(task);
 	}
 	
 	public void deleteTaskById(Long id) {
+		taskCommentRepository.deleteByTaskId(id);
 		taskRepository.deleteById(id);
 	}
 	

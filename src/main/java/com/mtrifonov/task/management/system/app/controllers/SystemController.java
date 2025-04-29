@@ -1,7 +1,6 @@
 package com.mtrifonov.task.management.system.app.controllers;
 
 import java.net.URI;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -25,12 +24,11 @@ import com.mtrifonov.task.management.system.app.assemblers.TaskCommentModelAssem
 import com.mtrifonov.task.management.system.app.assemblers.TaskCommentPagedResourcesAssembler;
 import com.mtrifonov.task.management.system.app.assemblers.TaskModelAssembler;
 import com.mtrifonov.task.management.system.app.assemblers.TaskPagedResourcesAssembler;
-import com.mtrifonov.task.management.system.app.dto.TaskCommentDTO;
-import com.mtrifonov.task.management.system.app.dto.TaskDTO;
+import com.mtrifonov.task.management.system.app.entities.Task;
+import com.mtrifonov.task.management.system.app.entities.TaskComment;
 import com.mtrifonov.task.management.system.app.entities.Task.Priority;
 import com.mtrifonov.task.management.system.app.entities.Task.Status;
 import com.mtrifonov.task.management.system.app.services.TaskService;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +52,7 @@ public class SystemController {
 
 	//Return a task with a given ID
 	@GetMapping("/{id}")
-	public ResponseEntity<EntityModel<TaskDTO>> getTaskById(@PathVariable Long id, //covered
+	public ResponseEntity<EntityModel<Task>> getTaskById(@PathVariable Long id, //covered
 		JwtAuthenticationToken user) {
 		
 		var task = taskService.getTaskById(id, user);
@@ -63,7 +61,7 @@ public class SystemController {
 
 	//Return a comment with a given ID
 	@GetMapping("/comments/{id}")
-	public ResponseEntity<EntityModel<TaskCommentDTO>> getCommentById(@PathVariable Long id, //covered
+	public ResponseEntity<EntityModel<TaskComment>> getCommentById(@PathVariable Long id, //covered
 		JwtAuthenticationToken user) {
 
 		var comment = taskService.getCommentById(id, user);
@@ -75,7 +73,7 @@ public class SystemController {
 	
 	//Return all tasks where the author is the user with a given EMAIL
 	@GetMapping("/author/{email}")
-	public ResponseEntity<PagedModel<EntityModel<TaskDTO>>> getAllTasksByAuthor(@PathVariable @Email String email, //covered
+	public ResponseEntity<PagedModel<EntityModel<Task>>> getAllTasksByAuthor(@PathVariable @Email String email, //covered
 		@PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable) {
 		
 		var tasks = taskService.getAllTasksByAuthor(email, pageable);
@@ -85,7 +83,7 @@ public class SystemController {
 	
 	//Return all tasks where the executor is the user with a given EMAIL
 	@GetMapping("/executor/{email}")
-	public ResponseEntity<PagedModel<EntityModel<TaskDTO>>> getAllTasksByExecutor(@PathVariable @Email String email, //covered
+	public ResponseEntity<PagedModel<EntityModel<Task>>> getAllTasksByExecutor(@PathVariable @Email String email, //covered
 		@PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable) {
 		
 		var tasks = taskService.getAllTasksByExecutor(email, pageable);
@@ -96,7 +94,7 @@ public class SystemController {
 
 	//Return all comments related to task with given ID
 	@GetMapping("/{id}/comments")
-	public ResponseEntity<PagedModel<EntityModel<TaskCommentDTO>>> getAllComments(@PathVariable Long id, JwtAuthenticationToken user, //covered
+	public ResponseEntity<PagedModel<EntityModel<TaskComment>>> getAllComments(@PathVariable Long id, JwtAuthenticationToken user, //covered
 		@PageableDefault(sort = {"task_comment_id"}, direction = Direction.ASC) Pageable pageable) {
 		
 		var comments = taskService.getAllComments(id, user, pageable);
@@ -107,7 +105,7 @@ public class SystemController {
 	
 	//Return all comments related to task with given ID and posted by user with given EMAIL 
 	@GetMapping("/{id}/comments/{email}")
-	public ResponseEntity<PagedModel<EntityModel<TaskCommentDTO>>> getAllCommentsByAuthor(@PathVariable Long id, //covered
+	public ResponseEntity<PagedModel<EntityModel<TaskComment>>> getAllCommentsByAuthor(@PathVariable Long id, //covered
 		@PathVariable @Email String email, JwtAuthenticationToken user,
 		@PageableDefault(sort = {"task_comment_id"}, direction = Direction.ASC) Pageable pageable) {
 		
@@ -119,10 +117,10 @@ public class SystemController {
 	
 	//Create task with given body
 	@PostMapping("/create")
-	public ResponseEntity<Void> createTask(@Valid @RequestBody TaskDTO data, //covered
+	public ResponseEntity<Void> createTask(@Valid @RequestBody Task task, //covered
 		JwtAuthenticationToken creator) {
 		
-		var task = taskService.createTask(data, creator);
+		taskService.createTask(task, creator);
 		return ResponseEntity.created(URI.create("http://" + address + "/task/management/system/" + task.getId())).build();
 	}
 
@@ -167,7 +165,7 @@ public class SystemController {
 	//Delete the task with a given ID
 	@DeleteMapping("/{id}/delete")
 	public ResponseEntity<Void> deleteTask(@PathVariable Long id) { //covered
-			
+
 		taskService.deleteTaskById(id);
 		return ResponseEntity.ok().build();
 	}

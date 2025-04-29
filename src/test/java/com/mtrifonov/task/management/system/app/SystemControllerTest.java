@@ -165,9 +165,9 @@ public class SystemControllerTest {
 		mvc.perform(requestBuilder)
 			.andExpectAll(
 				status().isOk(),
-				jsonPath("$._embedded.taskDTOList.length()", is(5)),
-				jsonPath("$._embedded.taskDTOList[1].description", is("task5")),
-				jsonPath("$._embedded.taskDTOList[4].description", is("task4"))
+				jsonPath("$._embedded.taskList.length()", is(5)),
+				jsonPath("$._embedded.taskList[1].description", is("task5")),
+				jsonPath("$._embedded.taskList[4].description", is("task4"))
 			);
 	}
 	
@@ -213,9 +213,9 @@ public class SystemControllerTest {
 		mvc.perform(requestBuilder)
 			.andExpectAll(
 				status().isOk(),
-				jsonPath("$._embedded.taskDTOList.length()", is(3)),
-				jsonPath("$._embedded.taskDTOList[0].description", is("task2")),
-				jsonPath("$._embedded.taskDTOList[2].description", is("task4"))
+				jsonPath("$._embedded.taskList.length()", is(3)),
+				jsonPath("$._embedded.taskList[0].description", is("task2")),
+				jsonPath("$._embedded.taskList[2].description", is("task4"))
 			);
 	}
 
@@ -260,7 +260,7 @@ public class SystemControllerTest {
 		mvc.perform(requestBuilder)
 			.andExpectAll(
 				status().isOk(),
-				jsonPath("$._embedded.taskCommentDTOList[0].text", is("comment2"))
+				jsonPath("$._embedded.taskCommentList[0].text", is("comment2"))
 			);
 	}
 	
@@ -276,7 +276,7 @@ public class SystemControllerTest {
 		mvc.perform(requestBuilder)
 			.andExpectAll(
 				status().isOk(),
-				jsonPath("$._embedded.taskCommentDTOList[0].text", is("comment2"))
+				jsonPath("$._embedded.taskCommentList[0].text", is("comment2"))
 			);
 	}
 	
@@ -292,7 +292,7 @@ public class SystemControllerTest {
 		mvc.perform(requestBuilder)
 			.andExpectAll(
 				status().isOk(),
-				jsonPath("$._embedded.taskCommentDTOList[0].text", is("comment2"))
+				jsonPath("$._embedded.taskCommentList[0].text", is("comment2"))
 			);
 	}
 	
@@ -328,7 +328,7 @@ public class SystemControllerTest {
 		mvc.perform(requestBuilder)
 			.andExpectAll(
 				status().isOk(),
-				jsonPath("$._embedded.taskCommentDTOList[0].text", is("comment3"))
+				jsonPath("$._embedded.taskCommentList[0].text", is("comment3"))
 			);
 	}
 
@@ -344,7 +344,7 @@ public class SystemControllerTest {
 		mvc.perform(requestBuilder)
 			.andExpectAll(
 				status().isOk(),
-				jsonPath("$._embedded.taskCommentDTOList[0].text", is("comment3"))
+				jsonPath("$._embedded.taskCommentList[0].text", is("comment3"))
 			);
 	}
 
@@ -360,7 +360,7 @@ public class SystemControllerTest {
 		mvc.perform(requestBuilder)
 			.andExpectAll(
 				status().isOk(),
-				jsonPath("$._embedded.taskCommentDTOList[0].text", is("comment3"))
+				jsonPath("$._embedded.taskCommentList[0].text", is("comment3"))
 			);
 	}
 	
@@ -683,7 +683,7 @@ public class SystemControllerTest {
 	@Transactional
 	void deleteCreatedTask_validRequestWithAdminRole_statusOk() throws Exception {
 		
-		var requestBuilder = delete("/task/management/system/3/delete")
+		var requestBuilder = delete("/task/management/system/3/delete") 
 				.with(csrf());
 		
 		mvc.perform(requestBuilder).andExpect(status().isOk());

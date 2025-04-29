@@ -4,6 +4,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import com.mtrifonov.task.management.system.app.entities.TaskComment;
@@ -66,4 +67,13 @@ public interface TaskCommentRepository extends JpaRepository<TaskComment, Long> 
 		""", sqlResultSetMapping = "CommentsWithTask"
 	)
 	Page<Object[]> findByTaskIdAndAuthor(Long id, String email, Pageable pageable);
+	@Modifying
+	@NativeQuery(value = 
+		"""
+		DELETE
+		FROM task_comments
+		WHERE task_id = ?1	
+		"""
+	)
+	void deleteByTaskId(Long id);
 }
